@@ -44,7 +44,7 @@ void Imprimir_Trecho_Arq(){
 }
 
 string menu(string escolha){
-    while ((escolha != "1") and (escolha != "2") and (escolha != "3") and (escolha != "4") and (escolha != "5") and (escolha != "6") and (escolha != "7") and (escolha != "8") and (escolha != "9")){
+    while ((escolha != "1") && (escolha != "2") && (escolha != "3") && (escolha != "4") && (escolha != "5") && (escolha != "6") && (escolha != "7") && (escolha != "8") && (escolha != "9")){
         cout <<"" << endl << endl << endl;
         cout << "+---------------------------------------+" << endl;
         cout << "|          Menuzinho de cria            |" << endl ;
@@ -77,6 +77,7 @@ return escolha;
 int main(){
     string escolha;
     while(escolha != "9"){
+        escolha = " ";
         escolha = menu(escolha);
         
         if(escolha == "1"){
