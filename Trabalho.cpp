@@ -16,7 +16,7 @@ void Cadastro(){
 
 }
 
-void Remover_Dado(){
+void Remover_dado(){
 
 }
 
