@@ -113,6 +113,6 @@ int main(){
         }
 
     }
-    cout << "VAI CORINTHIAS! :( ";
+    cout << "Vc saiu! :( ";
     return 0;
 }
