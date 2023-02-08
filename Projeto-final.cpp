@@ -74,7 +74,7 @@ string menu(string escolha){
 return escolha;
 }
 
-pedro é gay
+
 
 int main(){
     string escolha;
