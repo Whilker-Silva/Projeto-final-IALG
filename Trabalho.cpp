@@ -74,6 +74,12 @@ string menu(string escolha){
 return escolha;
 }
 
+struct Trabalho
+{
+    /* data */
+};
+
+
 int main(){
     string escolha;
     while(escolha != "9"){
