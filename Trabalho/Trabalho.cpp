@@ -320,8 +320,8 @@ int Cadastrar_Dado()
     getline(cin, novoremedio.tarja);
     cout << endl;
     cout << endl;
-    
-    //
+
+    // escrevendo novo cadastro no arquivo binário
     ofstream arqnew("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
     arqnew.write((const char *)&novoremedio, 1 * sizeof(remedios));
     arqnew.close();
