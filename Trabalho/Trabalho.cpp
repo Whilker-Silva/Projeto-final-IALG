@@ -78,11 +78,12 @@ int main()
 
         else if (selecao == 4)
         {
-            selecao = Importar_dados_CSV();
+            selecao = Remover_Dado();
         }
 
         else if (selecao == 5)
         {
+            selecao = Ordenar_Dados();
         }
 
         else if (selecao == 6)
@@ -92,12 +93,12 @@ int main()
 
         else if (selecao == 7)
         {
-            // Imprimir_Arq_Inteiro();
+            selecao = Imprimir_Arq_Inteiro();
         }
 
         else if (selecao == 9)
         {
-            // Imprimir_Trecho_Arq();
+            selecao = Imprimir_Trecho_Arq();
         }
     }
 
@@ -182,7 +183,6 @@ int menu(int escolha)
 
         else
         {
-
             terminal_clear();
             return stoi(n);
         }
@@ -215,8 +215,7 @@ int Importar_dados_CSV()
         Após receber o dado convertido;
         Por fim salvo no vetor de registo.
         */
-
-        // converter ou não?
+       
         string custo = dado(arqin);
         novoremedio[i].custo = stof(custo);
 
@@ -321,7 +320,7 @@ int Cadastrar_Dado()
     cout << endl;
     cout << endl;
 
-    // escrevendo novo cadastro no arquivo binário
+    // Escreve o novo dado no arquivo binario
     ofstream arqnew("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
     arqnew.write((const char *)&novoremedio, 1 * sizeof(remedios));
     arqnew.close();
