@@ -35,7 +35,7 @@ struct remedios
 {
     float custo, venda;
     long long codigo;
-    string fornecedor, tarja;
+    char fornecedor[80], tarja[50];
 };
 
 /*
@@ -215,7 +215,7 @@ int Importar_dados_CSV()
         Após receber o dado convertido;
         Por fim salvo no vetor de registo.
         */
-       
+
         string custo = dado(arqin);
         novoremedio[i].custo = stof(custo);
 
@@ -223,13 +223,13 @@ int Importar_dados_CSV()
         novoremedio[i].venda = stof(venda);
 
         string fornecedor = dado(arqin);
-        novoremedio[i].fornecedor = fornecedor;
+        strcpy(novoremedio[i].fornecedor, fornecedor.c_str());
 
         string codigo = dado(arqin);
         novoremedio[i].codigo = stoll(codigo);
 
         string tarja = dado(arqin);
-        novoremedio[i].tarja = tarja;
+        strcpy(novoremedio[i].tarja, tarja.c_str());
     }
 
     // reliaza a escrita do vetor de registro no aquivo binario
@@ -300,6 +300,7 @@ int Cadastrar_Dado()
     bool novoCadastro = 0;
 
     remedios novoremedio;
+    string fornecedor, tarja;
 
     // interação com o usuario afim de guia-lo para realizar o cadastro
     cout << endl;
@@ -311,12 +312,14 @@ int Cadastrar_Dado()
     cin >> novoremedio.venda;
     cout << "   Fabrincate: ";
     cin.ignore();
-    getline(cin, novoremedio.fornecedor);
+    getline(cin, fornecedor);
+    strcpy(novoremedio.fornecedor, fornecedor.c_str());
     cout << "   Codigo: ";
     cin >> novoremedio.codigo;
     cout << "   Tarja: ";
     cin.ignore();
-    getline(cin, novoremedio.tarja);
+    getline(cin, tarja);
+    strcpy(novoremedio.tarja, tarja.c_str());
     cout << endl;
     cout << endl;
 
