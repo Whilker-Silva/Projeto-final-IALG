@@ -29,13 +29,14 @@ int Buscar_Registro();
 int Imprimir_Arq_Inteiro();
 int Imprimir_Trecho_Arq();
 string dado(ifstream &arquivo);
+void orderna(int a[], int inicio, int fim);
 
 // Criando registro para remédios
 struct remedios
 {
     float custo, venda;
     long long codigo;
-    string fornecedor, tarja;
+    char fornecedor[80], tarja[50];
 };
 
 /*
@@ -215,7 +216,7 @@ int Importar_dados_CSV()
         Após receber o dado convertido;
         Por fim salvo no vetor de registo.
         */
-       
+
         string custo = dado(arqin);
         novoremedio[i].custo = stof(custo);
 
@@ -223,13 +224,13 @@ int Importar_dados_CSV()
         novoremedio[i].venda = stof(venda);
 
         string fornecedor = dado(arqin);
-        novoremedio[i].fornecedor = fornecedor;
+        strcpy(novoremedio[i].fornecedor, fornecedor.c_str());
 
         string codigo = dado(arqin);
         novoremedio[i].codigo = stoll(codigo);
 
         string tarja = dado(arqin);
-        novoremedio[i].tarja = tarja;
+        strcpy(novoremedio[i].tarja, tarja.c_str());
     }
 
     // reliaza a escrita do vetor de registro no aquivo binario
@@ -300,6 +301,7 @@ int Cadastrar_Dado()
     bool novoCadastro = 0;
 
     remedios novoremedio;
+    string fornecedor, tarja;
 
     // interação com o usuario afim de guia-lo para realizar o cadastro
     cout << endl;
@@ -311,12 +313,14 @@ int Cadastrar_Dado()
     cin >> novoremedio.venda;
     cout << "   Fabrincate: ";
     cin.ignore();
-    getline(cin, novoremedio.fornecedor);
+    getline(cin, fornecedor);
+    strcpy(novoremedio.fornecedor, fornecedor.c_str());
     cout << "   Codigo: ";
     cin >> novoremedio.codigo;
     cout << "   Tarja: ";
     cin.ignore();
-    getline(cin, novoremedio.tarja);
+    getline(cin, tarja);
+    strcpy(novoremedio.tarja, tarja.c_str());
     cout << endl;
     cout << endl;
 
@@ -351,6 +355,96 @@ int Remover_Dado()
 
 int Ordenar_Dados()
 {
+    string n;
+    cout << endl;
+    cout << endl;
+    cout << endl;
+    cout << "   +---------------------------------------+" << endl;
+    cout << "   |              ORDENACAO                |" << endl;
+    cout << "   +---------------------------------------+" << endl;
+    cout << "   | [1] Valor de custo                    |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [2] Valor de venda                    |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [3] Fornecedor                        |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [4] Codigo de barras                  |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [5] Tarja                             |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [6] Cancelar Ordenacao                |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << endl;
+    cout << endl;
+    cout << "   Informe por qual campo deseja ordenar: ";
+    cin >> n;
+
+    // Abre aequivo para leitura
+    ifstream arqOrdem("BaseDados_binario.dat", ios::binary | ios::ate);
+
+    // Verifica qantidade de dados
+    long int TamByte = arqOrdem.tellg();
+    int qtdDados = int(TamByte / sizeof(remedios));
+    cout << qtdDados << endl;
+    arqOrdem.seekg(0);
+
+    // Passa valores do aquivo binario para  o vetorOrdena
+    remedios vetorOrdena[qtdDados];
+    arqOrdem.read((char *)&vetorOrdena, qtdDados * sizeof(remedios));
+
+    for (int i = 0; i < qtdDados; i++)
+    {
+        cout << vetorOrdena[i].custo << " ";
+        cout << vetorOrdena[i].venda << " ";
+        cout << vetorOrdena[i].fornecedor << " ";
+        cout << vetorOrdena[i].codigo << " ";
+        cout << vetorOrdena[i].tarja << endl;
+    }
+
+    if (n == "1")
+    {
+    }
+
+    else if (n == "2")
+    {
+    }
+
+    else if (n == "3")
+    {
+    }
+
+    else if (n == "4")
+    {
+    }
+
+    else if (n == "5")
+    {
+    }
+
+    else
+    {
+        cout << "                             OPCAO INVALIDA!";
+        sleep(2);
+
+        terminal_clear();
+        return 5;
+    }
+}
+
+void LeituraBinario(remedios vetorOrdena[])
+{
+}
+
+void orderna(int a[], int inicio, int fim)
+{
+    int meio;
+    if (inicio < fim)
+    {
+        meio = (inicio + fim) / 2;
+        orderna(a, inicio, meio);
+        orderna(a, meio + 1, fim);
+        // intercala(a, inicio, meio, fim);
+    }
 }
 
 int Buscar_Registro()
