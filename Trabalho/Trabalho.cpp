@@ -13,8 +13,13 @@ Alunos:
 #include <fstream>
 #include <string.h>
 #include <cstring>
+
+/*Biblioteca para uso do sleep no windows ou linux*/
+#if defined _WIN32
+#include <Windows.h>
+#else
 #include <unistd.h>
-#include <iomanip>
+#endif
 
 using namespace std;
 
@@ -38,6 +43,7 @@ int Buscar_Registro();
 int Imprimir_Arq_Inteiro();
 int Imprimir_Trecho_Arq();
 void shell_sort(remedios vet[], int size, string tipo);
+void delay(int tempo);
 string dado(ifstream &arquivo);
 string troca_virgula(string s);
 
@@ -108,6 +114,16 @@ void terminal_clear()
 #endif
 }
 
+/*Função para daley no windows ou linux*/
+void delay(int tempo)
+{
+#if defined _WIN32
+    Sleep(tempo * 1000);
+#else
+    usleep(tempo * 1000);
+#endif
+}
+
 /*Função menu, mostra as subfunções na qual, o usario
 deve informar o que deseja realizar no sistema*/
 int menu(int escolha)
@@ -156,7 +172,7 @@ int menu(int escolha)
             n != "5" and n != "6" and n != "7" and n != "8" and n != "9")
         {
             cout << "                        OPCAO INVALIDA!";
-            sleep(2);
+            delay(2);
 
             terminal_clear();
             return 0;
@@ -184,48 +200,64 @@ int Importar_dados_CSV()
     cin >> n;
 
     ifstream arqin(nome_arquvo);
-    ofstream arqout("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
-    remedios novoremedio[n];
 
-    for (int i = 0; i < n; i++)
+    // verifica se o nome informado é valido
+    if (arqin.fail())
     {
-        /*
-        foi criado uma string auxiliar para cada campo;
-        Essa string recebe o dado do arquivo CSV;
-        o dado já vem tratado da função dado(arquivo);
-        Após receber o dado convertido;
-        Por fim salvo no vetor de registo.
-        */
+        cout << endl;
+        cout << "   ARQUIVO NAO ENCONTRADO!" << endl;
+        cout << "   VERIFIQUE O NOME DO ARQUIVO QUE DESEJA IMPORTAR!";
+        delay(5);
+        terminal_clear();
 
-        string aux;
-
-        aux = dado(arqin);
-        novoremedio[i].custo = stof(aux);
-
-        aux = dado(arqin);
-        novoremedio[i].venda = stof(aux);
-
-        aux = dado(arqin);
-        strcpy(novoremedio[i].fornecedor, aux.c_str());
-
-        aux = dado(arqin);
-        novoremedio[i].codigo = stoll(aux);
-
-        aux = dado(arqin);
-        strcpy(novoremedio[i].tarja, aux.c_str());
+        return 0;
     }
 
-    // reliaza a escrita do vetor de registro no aquivo binario
-    arqout.write((const char *)&novoremedio, n * sizeof(remedios));
+    else
+    {
+        ofstream arqout("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
+        remedios novoremedio[n];
 
-    arqin.close();
-    arqout.close();
+        for (int i = 0; i < n; i++)
+        {
+            /*
+            foi criado uma string auxiliar para cada campo;
+            Essa string recebe o dado do arquivo CSV;
+            o dado já vem tratado da função dado(arquivo);
+            Após receber o dado convertido;
+            Por fim salvo no vetor de registo.
+            */
 
-    cout << "   ARQUIVO IMPORTADO COM SUCESSO!";
-    sleep(3);
-    terminal_clear();
+            string aux;
 
-    return 0;
+            aux = dado(arqin);
+            novoremedio[i].custo = stof(aux);
+
+            aux = dado(arqin);
+            novoremedio[i].venda = stof(aux);
+
+            aux = dado(arqin);
+            strcpy(novoremedio[i].fornecedor, aux.c_str());
+
+            aux = dado(arqin);
+            novoremedio[i].codigo = stoll(aux);
+
+            aux = dado(arqin);
+            strcpy(novoremedio[i].tarja, aux.c_str());
+        }
+
+        // reliaza a escrita do vetor de registro no aquivo binario
+        arqout.write((const char *)&novoremedio, n * sizeof(remedios));
+
+        arqin.close();
+        arqout.close();
+
+        cout << "   ARQUIVO IMPORTADO COM SUCESSO!";
+        delay(3);
+        terminal_clear();
+
+        return 0;
+    }
 }
 
 /*Função para extrair os dados do arquivo CSV,
@@ -281,45 +313,60 @@ int Exportar_dados_CSV()
     // Abre aequivo para leitura
     ifstream arqExport("BaseDados_binario.dat", ios::binary | ios::ate);
 
-    // Verifica qantidade de dados
-    long int TamByte = arqExport.tellg();
-    int qtdDados = int(TamByte / sizeof(remedios));
-
-    arqExport.seekg(0);
-
-    // copia valores do aquivo binario para  o vetorexport
-    remedios vetorExport[qtdDados];
-    arqExport.read((char *)&vetorExport, qtdDados * sizeof(remedios));
-    arqExport.close();
-
-    // Abre aequivo para escrita
-    ofstream arqExpot_csv("Base3_exportada.csv");
-
-    for (int i = 0; i < qtdDados; i++)
+    // verifica se o nome informado é valido
+    if (arqExport.fail())
     {
-        //converte campo 1 e 2 para string
-        string custo = to_string(vetorExport[i].custo);
-        string venda = to_string(vetorExport[i].venda);
+        cout << endl;
+        cout << "   ARQUIVO BINARIO NAO ENCONTRADO!" << endl;
+        cout << "   REALIZAR IMPORTACAO DA BASE DE DADOS!";
+        delay(5);
+        terminal_clear();
 
-        //troca '.' por ','
-        custo = troca_virgula(custo);
-        venda = troca_virgula(venda);
-
-        //excreve no arquino CSV
-        arqExpot_csv << custo << ";";
-        arqExpot_csv << venda << ";";
-        arqExpot_csv << vetorExport[i].fornecedor << ";";
-        arqExpot_csv << vetorExport[i].codigo << ";";
-        arqExpot_csv << vetorExport[i].tarja << endl;
+        return 0;
     }
 
-    cout << endl;
-    cout << endl;
-    cout << "   ARQUIVO EXPORTADO COM SUCESSO!";
+    else
+    {
+        // Verifica qantidade de dados
+        long int TamByte = arqExport.tellg();
+        int qtdDados = int(TamByte / sizeof(remedios));
 
-    sleep(3);
-    terminal_clear();
-    return 0;
+        arqExport.seekg(0);
+
+        // copia valores do aquivo binario para  o vetorexport
+        remedios vetorExport[qtdDados];
+        arqExport.read((char *)&vetorExport, qtdDados * sizeof(remedios));
+        arqExport.close();
+
+        // Abre aequivo para escrita
+        ofstream arqExpot_csv("Base3_exportada.csv");
+
+        for (int i = 0; i < qtdDados; i++)
+        {
+            // converte campo 1 e 2 para string
+            string custo = to_string(vetorExport[i].custo);
+            string venda = to_string(vetorExport[i].venda);
+
+            // troca '.' por ','
+            custo = troca_virgula(custo);
+            venda = troca_virgula(venda);
+
+            // excreve no arquino CSV
+            arqExpot_csv << custo << ";";
+            arqExpot_csv << venda << ";";
+            arqExpot_csv << vetorExport[i].fornecedor << ";";
+            arqExpot_csv << vetorExport[i].codigo << ";";
+            arqExpot_csv << vetorExport[i].tarja << endl;
+        }
+
+        cout << endl;
+        cout << endl;
+        cout << "   ARQUIVO EXPORTADO COM SUCESSO!";
+
+        delay(3);
+        terminal_clear();
+        return 0;
+    }
 }
 
 // Função que realiza a troca de '.' por ','
@@ -344,7 +391,6 @@ string troca_virgula(string s)
 
     return aux;
 }
-
 
 int Cadastrar_Dado()
 {
@@ -408,74 +454,89 @@ int Ordenar_Dados()
 {
     string n;
 
-    // lista de opções de campos para ordenação
-    cout << endl;
-    cout << endl;
-    cout << endl;
-    cout << "   +---------------------------------------+" << endl;
-    cout << "   |              ORDENACAO                |" << endl;
-    cout << "   +---------------------------------------+" << endl;
-    cout << "   | [1] Valor de custo                    |" << endl;
-    cout << "   |---------------------------------------|" << endl;
-    cout << "   | [2] Valor de venda                    |" << endl;
-    cout << "   |---------------------------------------|" << endl;
-    cout << "   | [3] Fornecedor                        |" << endl;
-    cout << "   |---------------------------------------|" << endl;
-    cout << "   | [4] Codigo De Barras                  |" << endl;
-    cout << "   |---------------------------------------|" << endl;
-    cout << "   | [5] Tarja                             |" << endl;
-    cout << "   |---------------------------------------|" << endl;
-    cout << "   | [6] Cancelar Ordenacao                |" << endl;
-    cout << "   |---------------------------------------|" << endl;
-    cout << endl;
-    cout << endl;
-    cout << "   Informe por qual campo deseja ordenar: ";
-    cin >> n;
-
     // Abre aequivo para leitura
     ifstream arqOrdem("BaseDados_binario.dat", ios::binary | ios::ate);
 
-    // Verifica qantidade de dados
-    long int TamByte = arqOrdem.tellg();
-    int qtdDados = int(TamByte / sizeof(remedios));
-
-    arqOrdem.seekg(0);
-
-    // Verifica se opção escolhida pelo usuario é valida
-    if (n == "1" or n == "2" or n == "3" or n == "4" or n == "5")
+    // verifica se o nome informado é valido
+    if (arqOrdem.fail())
     {
-
-        // copia valores do aquivo binario para  o vetorOrdena
-        remedios vetorOrdena[qtdDados];
-        arqOrdem.read((char *)&vetorOrdena, qtdDados * sizeof(remedios));
-        arqOrdem.close();
-
-        // Realizada a ordenação de acordo com campo escolhido
-        shell_sort(vetorOrdena, qtdDados, n);
-
-        // escreve vetor ordenado no aquivo binario
-        ofstream arqOrdenado("BaseDados_binario.dat", ios::binary);
-        arqOrdenado.write((char *)&vetorOrdena, qtdDados * sizeof(remedios));
-        arqOrdenado.close();
-
-        cout << "   ARQUIVO ORDENADO COM SUCESSO!";
-        sleep(3);
+        cout << endl;
+        cout << "   ARQUIVO BINARIO NAO ENCONTRADO!" << endl;
+        cout << "   REALIZAR IMPORTACAO DA BASE DE DADOS!";
+        delay(5);
         terminal_clear();
-        return 0;
-    }
 
-    else if (n == "6")
-    {
-        terminal_clear();
         return 0;
     }
 
     else
     {
-        cout << "                             OPCAO INVALIDA!";
-        sleep(2);
-        terminal_clear();
-        return 5;
+        // lista de opções de campos para ordenação
+        cout << endl;
+        cout << endl;
+        cout << endl;
+        cout << "   +---------------------------------------+" << endl;
+        cout << "   |              ORDENACAO                |" << endl;
+        cout << "   +---------------------------------------+" << endl;
+        cout << "   | [1] Valor de custo                    |" << endl;
+        cout << "   |---------------------------------------|" << endl;
+        cout << "   | [2] Valor de venda                    |" << endl;
+        cout << "   |---------------------------------------|" << endl;
+        cout << "   | [3] Fornecedor                        |" << endl;
+        cout << "   |---------------------------------------|" << endl;
+        cout << "   | [4] Codigo De Barras                  |" << endl;
+        cout << "   |---------------------------------------|" << endl;
+        cout << "   | [5] Tarja                             |" << endl;
+        cout << "   |---------------------------------------|" << endl;
+        cout << "   | [6] Cancelar Ordenacao                |" << endl;
+        cout << "   |---------------------------------------|" << endl;
+        cout << endl;
+        cout << endl;
+        cout << "   Informe por qual campo deseja ordenar: ";
+        cin >> n;
+
+        // Verifica qantidade de dados
+        long int TamByte = arqOrdem.tellg();
+        int qtdDados = int(TamByte / sizeof(remedios));
+
+        arqOrdem.seekg(0);
+
+        // Verifica se opção escolhida pelo usuario é valida
+        if (n == "1" or n == "2" or n == "3" or n == "4" or n == "5")
+        {
+
+            // copia valores do aquivo binario para  o vetorOrdena
+            remedios vetorOrdena[qtdDados];
+            arqOrdem.read((char *)&vetorOrdena, qtdDados * sizeof(remedios));
+            arqOrdem.close();
+
+            // Realizada a ordenação de acordo com campo escolhido
+            shell_sort(vetorOrdena, qtdDados, n);
+
+            // escreve vetor ordenado no aquivo binario
+            ofstream arqOrdenado("BaseDados_binario.dat", ios::binary);
+            arqOrdenado.write((char *)&vetorOrdena, qtdDados * sizeof(remedios));
+            arqOrdenado.close();
+
+            cout << "   ARQUIVO ORDENADO COM SUCESSO!";
+            delay(3);
+            terminal_clear();
+            return 0;
+        }
+
+        else if (n == "6")
+        {
+            terminal_clear();
+            return 0;
+        }
+
+        else
+        {
+            cout << "                             OPCAO INVALIDA!";
+            delay(2);
+            terminal_clear();
+            return 5;
+        }
     }
 }
 
