@@ -33,6 +33,7 @@ string dado(ifstream &arquivo);
 // Criando registro para remédios
 struct remedios
 {
+    bool apagado = false;
     float custo, venda;
     long long codigo;
     char fornecedor[80], tarja[50];
@@ -350,7 +351,41 @@ int Cadastrar_Dado()
 
 int Remover_Dado()
 {
+    fstream arqnew ("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
+
+    long int TamByte = arqnew.tellg(), cont = 0, posicao = -1;
+    int qtdDados = int(TamByte / sizeof(remedios));
+
+    remedios excluir;
+
+    long long encontrar;
+    cout << "Digite o código do medicamento que deseja excluir";
+    cin >> encontrar;
+
+    while ((cont < TamByte + 1) && (posicao == -1)){
+        arqnew.seekg(cont*sizeof(remedios));
+        arqnew.read((char*) &excluir, sizeof(remedios));
+
+        if (encontrar == excluir.codigo && (!excluir.apagado)){
+            posicao = cont;
+            arqnew.seekg(-static_cast<int>(sizeof(remedios)), ios::cur);
+            excluir.apagado = 1;
+            arqnew.write((char*) &excluir, sizeof(remedios));
+        }
+        cont++;
+    }
+
+    if (posicao == -1){
+        cout << "Código inserido não encontrado" << endl;
+    } else{
+        cout << "Medicamento excluido com sucesso" << endl;
+    }
+
+    terminal_clear();
+
 }
+
+
 
 int Ordenar_Dados()
 {
