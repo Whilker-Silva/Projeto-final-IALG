@@ -14,8 +14,17 @@ Alunos:
 #include <string.h>
 #include <cstring>
 #include <unistd.h>
+#include <iomanip>
 
 using namespace std;
+
+// Criando registro para remédios
+struct remedios
+{
+    float custo, venda;
+    long long codigo;
+    char fornecedor[80], tarja[50];
+};
 
 // Declacaração de funções
 void terminal_clear();
@@ -28,27 +37,9 @@ int Ordenar_Dados();
 int Buscar_Registro();
 int Imprimir_Arq_Inteiro();
 int Imprimir_Trecho_Arq();
+void shell_sort(remedios vet[], int size, string tipo);
 string dado(ifstream &arquivo);
-void orderna(int a[], int inicio, int fim);
-
-// Criando registro para remédios
-struct remedios
-{
-    float custo, venda;
-    long long codigo;
-    char fornecedor[80], tarja[50];
-};
-
-/*
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-*/
+string troca_virgula(string s);
 
 int main()
 {
@@ -106,17 +97,6 @@ int main()
     return 0;
 
 } // Fim da main
-
-/*
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-############################################################################################
-*/
 
 /*Função para limpar o terminal no windows e linux*/
 void terminal_clear()
@@ -210,27 +190,29 @@ int Importar_dados_CSV()
     for (int i = 0; i < n; i++)
     {
         /*
-        foi criado uma string auxiliar para cada paramentro;
+        foi criado uma string auxiliar para cada campo;
         Essa string recebe o dado do arquivo CSV;
         o dado já vem tratado da função dado(arquivo);
         Após receber o dado convertido;
         Por fim salvo no vetor de registo.
         */
 
-        string custo = dado(arqin);
-        novoremedio[i].custo = stof(custo);
+        string aux;
 
-        string venda = dado(arqin);
-        novoremedio[i].venda = stof(venda);
+        aux = dado(arqin);
+        novoremedio[i].custo = stof(aux);
 
-        string fornecedor = dado(arqin);
-        strcpy(novoremedio[i].fornecedor, fornecedor.c_str());
+        aux = dado(arqin);
+        novoremedio[i].venda = stof(aux);
 
-        string codigo = dado(arqin);
-        novoremedio[i].codigo = stoll(codigo);
+        aux = dado(arqin);
+        strcpy(novoremedio[i].fornecedor, aux.c_str());
 
-        string tarja = dado(arqin);
-        strcpy(novoremedio[i].tarja, tarja.c_str());
+        aux = dado(arqin);
+        novoremedio[i].codigo = stoll(aux);
+
+        aux = dado(arqin);
+        strcpy(novoremedio[i].tarja, aux.c_str());
     }
 
     // reliaza a escrita do vetor de registro no aquivo binario
@@ -247,9 +229,10 @@ int Importar_dados_CSV()
 }
 
 /*Função para extrair os dados do arquivo CSV,
-separando as "céculas"
-formatando de acordo que seu tipo
-retornando uma string com o dado trado*/
+1º separa os campos"
+1º separa os campos"
+2º formata de acordo que seu tipo
+3º retorna uma string com o dado já trado*/
 string dado(ifstream &arquivo)
 {
     string aux;
@@ -259,12 +242,13 @@ string dado(ifstream &arquivo)
     arquivo.read(&c, 1);
 
     // verificar se exeiste dado no campo atual
-    // Se o primeiro carater for ';' retornar caracter 0
+    // Se o primeiro carater for ';' (valor nulo) retornar caracter 0
     if (c == ';')
     {
         return "0";
     }
 
+    // caso se valor valido
     else
     {
         /*Enquanto c for dirferente de ';' e diferente de quebra de linha
@@ -294,7 +278,73 @@ string dado(ifstream &arquivo)
 
 int Exportar_dados_CSV()
 {
+    // Abre aequivo para leitura
+    ifstream arqExport("BaseDados_binario.dat", ios::binary | ios::ate);
+
+    // Verifica qantidade de dados
+    long int TamByte = arqExport.tellg();
+    int qtdDados = int(TamByte / sizeof(remedios));
+
+    arqExport.seekg(0);
+
+    // copia valores do aquivo binario para  o vetorexport
+    remedios vetorExport[qtdDados];
+    arqExport.read((char *)&vetorExport, qtdDados * sizeof(remedios));
+    arqExport.close();
+
+    // Abre aequivo para escrita
+    ofstream arqExpot_csv("Base3_exportada.csv");
+
+    for (int i = 0; i < qtdDados; i++)
+    {
+        //converte campo 1 e 2 para string
+        string custo = to_string(vetorExport[i].custo);
+        string venda = to_string(vetorExport[i].venda);
+
+        //troca '.' por ','
+        custo = troca_virgula(custo);
+        venda = troca_virgula(venda);
+
+        //excreve no arquino CSV
+        arqExpot_csv << custo << ";";
+        arqExpot_csv << venda << ";";
+        arqExpot_csv << vetorExport[i].fornecedor << ";";
+        arqExpot_csv << vetorExport[i].codigo << ";";
+        arqExpot_csv << vetorExport[i].tarja << endl;
+    }
+
+    cout << endl;
+    cout << endl;
+    cout << "   ARQUIVO EXPORTADO COM SUCESSO!";
+
+    sleep(3);
+    terminal_clear();
+    return 0;
 }
+
+// Função que realiza a troca de '.' por ','
+string troca_virgula(string s)
+{
+    string aux;
+    int tam = s.length();
+
+    for (int i = 0; i < tam; i++)
+    {
+        if (s[i] == '.')
+        {
+            aux += ',';
+            i = tam - 3;
+        }
+
+        else
+        {
+            aux += s[i];
+        }
+    }
+
+    return aux;
+}
+
 
 int Cadastrar_Dado()
 {
@@ -324,7 +374,7 @@ int Cadastrar_Dado()
     cout << endl;
     cout << endl;
 
-    // Escreve o novo dado no arquivo binario
+    // Escreve o novo dado no final do arquivo binario
     ofstream arqnew("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
     arqnew.write((const char *)&novoremedio, 1 * sizeof(remedios));
     arqnew.close();
@@ -332,6 +382,7 @@ int Cadastrar_Dado()
     cout << "   Produto cadastrado! " << endl;
     cout << endl;
 
+    // Verifica se usuário deseja realizar mais 1 cadastro
     cout << "   Deseja cadastrar mais algum produto?" << endl;
     cout << "   [0] NAO  [1] SIM" << endl;
     cout << "   ";
@@ -356,6 +407,8 @@ int Remover_Dado()
 int Ordenar_Dados()
 {
     string n;
+
+    // lista de opções de campos para ordenação
     cout << endl;
     cout << endl;
     cout << endl;
@@ -368,7 +421,7 @@ int Ordenar_Dados()
     cout << "   |---------------------------------------|" << endl;
     cout << "   | [3] Fornecedor                        |" << endl;
     cout << "   |---------------------------------------|" << endl;
-    cout << "   | [4] Codigo de barras                  |" << endl;
+    cout << "   | [4] Codigo De Barras                  |" << endl;
     cout << "   |---------------------------------------|" << endl;
     cout << "   | [5] Tarja                             |" << endl;
     cout << "   |---------------------------------------|" << endl;
@@ -385,65 +438,126 @@ int Ordenar_Dados()
     // Verifica qantidade de dados
     long int TamByte = arqOrdem.tellg();
     int qtdDados = int(TamByte / sizeof(remedios));
-    cout << qtdDados << endl;
+
     arqOrdem.seekg(0);
 
-    // Passa valores do aquivo binario para  o vetorOrdena
-    remedios vetorOrdena[qtdDados];
-    arqOrdem.read((char *)&vetorOrdena, qtdDados * sizeof(remedios));
-
-    for (int i = 0; i < qtdDados; i++)
+    // Verifica se opção escolhida pelo usuario é valida
+    if (n == "1" or n == "2" or n == "3" or n == "4" or n == "5")
     {
-        cout << vetorOrdena[i].custo << " ";
-        cout << vetorOrdena[i].venda << " ";
-        cout << vetorOrdena[i].fornecedor << " ";
-        cout << vetorOrdena[i].codigo << " ";
-        cout << vetorOrdena[i].tarja << endl;
+
+        // copia valores do aquivo binario para  o vetorOrdena
+        remedios vetorOrdena[qtdDados];
+        arqOrdem.read((char *)&vetorOrdena, qtdDados * sizeof(remedios));
+        arqOrdem.close();
+
+        // Realizada a ordenação de acordo com campo escolhido
+        shell_sort(vetorOrdena, qtdDados, n);
+
+        // escreve vetor ordenado no aquivo binario
+        ofstream arqOrdenado("BaseDados_binario.dat", ios::binary);
+        arqOrdenado.write((char *)&vetorOrdena, qtdDados * sizeof(remedios));
+        arqOrdenado.close();
+
+        cout << "   ARQUIVO ORDENADO COM SUCESSO!";
+        sleep(3);
+        terminal_clear();
+        return 0;
     }
 
-    if (n == "1")
+    else if (n == "6")
     {
-    }
-
-    else if (n == "2")
-    {
-    }
-
-    else if (n == "3")
-    {
-    }
-
-    else if (n == "4")
-    {
-    }
-
-    else if (n == "5")
-    {
+        terminal_clear();
+        return 0;
     }
 
     else
     {
         cout << "                             OPCAO INVALIDA!";
         sleep(2);
-
         terminal_clear();
         return 5;
     }
 }
 
-void LeituraBinario(remedios vetorOrdena[])
+// Função para realizar a ordenação do vetor utilizando o algoritmo shell sort
+void shell_sort(remedios vet[], int size, string tipo)
 {
-}
-
-void orderna(int a[], int inicio, int fim)
-{
-    int meio;
-    if (inicio < fim)
+    int gaps[9] = {1, 4, 10, 23, 57, 132, 301, 701, 1750};
+    int pos_gap = 8;
+    while (gaps[pos_gap] > size)
     {
-        meio = (inicio + fim) / 2;
-        orderna(a, inicio, meio);
-        orderna(a, meio + 1, fim);
-        // intercala(a, inicio, meio, fim);
+        pos_gap--;
+    }
+
+    remedios value[1];
+
+    int j;
+    while (pos_gap >= 0)
+    {
+        int gap = gaps[pos_gap];
+
+        for (int i = gap; i < size; i++)
+        {
+            value[0] = vet[i];
+            j = i;
+
+            // Ordenação pelo campo custo
+            if (tipo == "1")
+            {
+                while ((j >= gap) and (value[0].custo < vet[j - gap].custo))
+                {
+                    vet[j] = vet[j - gap];
+                    j = j - gap;
+                }
+                vet[j] = value[0];
+            }
+
+            // Ordenação pelo campo venda
+            else if (tipo == "2")
+            {
+                while ((j >= gap) and (value[0].venda < vet[j - gap].venda))
+                {
+                    vet[j] = vet[j - gap];
+                    j = j - gap;
+                }
+                vet[j] = value[0];
+            }
+
+            // Ordenação pelo campo fornecedor
+            else if (tipo == "3")
+            {
+                while ((j >= gap) and strcmp(value[0].fornecedor, vet[j - gap].fornecedor) < 0)
+                {
+                    vet[j] = vet[j - gap];
+                    j = j - gap;
+                }
+                vet[j] = value[0];
+            }
+
+            // Ordenação pelo campo codigo de barras
+            else if (tipo == "4")
+            {
+                while ((j >= gap) and (value[0].codigo < vet[j - gap].codigo))
+                {
+                    vet[j] = vet[j - gap];
+                    j = j - gap;
+                }
+                vet[j] = value[0];
+            }
+
+            // Ordenação pelo campo tarja
+            else if (tipo == "5")
+            {
+                while ((j >= gap) and strcmp(value[0].tarja, vet[j - gap].tarja) < 0)
+                {
+                    vet[j] = vet[j - gap];
+                    j = j - gap;
+                }
+                vet[j] = value[0];
+            }
+        }
+
+        pos_gap--;
     }
 }
 
