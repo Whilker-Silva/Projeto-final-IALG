@@ -45,7 +45,6 @@ int Imprimir_Trecho_Arq();
 void shell_sort(remedios vet[], int size, string tipo);
 void delay(int tempo);
 string dado(ifstream &arquivo);
-string troca_virgula(string s);
 
 int main()
 {
@@ -93,7 +92,6 @@ int main()
         {
             selecao = Imprimir_Arq_Inteiro();
         }
-        
     }
 
     return 0;
@@ -341,17 +339,9 @@ int Exportar_dados_CSV()
 
         for (int i = 0; i < qtdDados; i++)
         {
-            // converte campo 1 e 2 para string
-            string custo = to_string(vetorExport[i].custo);
-            string venda = to_string(vetorExport[i].venda);
-
-            // troca '.' por ','
-            custo = troca_virgula(custo);
-            venda = troca_virgula(venda);
-
             // excreve no arquino CSV
-            arqExpot_csv << custo << ";";
-            arqExpot_csv << venda << ";";
+            arqExpot_csv << vetorExport[i].custo << ";";
+            arqExpot_csv << vetorExport[i].venda << ";";
             arqExpot_csv << vetorExport[i].fornecedor << ";";
             arqExpot_csv << vetorExport[i].codigo << ";";
             arqExpot_csv << vetorExport[i].tarja << endl;
@@ -366,29 +356,6 @@ int Exportar_dados_CSV()
         terminal_clear();
         return 0;
     }
-}
-
-// Função que realiza a troca de '.' por ','
-string troca_virgula(string s)
-{
-    string aux;
-    int tam = s.length();
-
-    for (int i = 0; i < tam; i++)
-    {
-        if (s[i] == '.')
-        {
-            aux += ',';
-            i = tam - 3;
-        }
-
-        else
-        {
-            aux += s[i];
-        }
-    }
-
-    return aux;
 }
 
 int Cadastrar_Dado()
