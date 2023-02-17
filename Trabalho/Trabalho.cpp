@@ -342,16 +342,15 @@ int Exportar_dados_CSV()
 
         for (int i = 0; i < qtdDados; i++)
         {
-            // if (vetorExport[i].status == true)
-            // {
-            // excreve no arquino CSV
-            arqExpot_csv << vetorExport[i].custo << ";";
-            arqExpot_csv << vetorExport[i].venda << ";";
-            arqExpot_csv << vetorExport[i].fornecedor << ";";
-            arqExpot_csv << vetorExport[i].codigo << ";";
-            arqExpot_csv << vetorExport[i].tarja << " | ";
-            arqExpot_csv << vetorExport[i].status << endl;
-            // }
+            if (vetorExport[i].status == true)
+            {
+                // excreve no arquino CSV
+                arqExpot_csv << vetorExport[i].custo << ";";
+                arqExpot_csv << vetorExport[i].venda << ";";
+                arqExpot_csv << vetorExport[i].fornecedor << ";";
+                arqExpot_csv << vetorExport[i].codigo << ";";
+                arqExpot_csv << vetorExport[i].tarja << endl;
+            }
         }
 
         cout << endl;
@@ -402,16 +401,17 @@ int Cadastrar_Dado()
     cout << endl;
     cout << endl;
     int pos;
+
     if (achoExcluido == false)
     {
 
-        fstream arqnew("BaseDados_binario.dat", ios::in | ios::out | ios::ate);
+        fstream arqnew("BaseDados_binario.dat", ios::binary | ios::in | ios::out | ios::ate);
         remedios verificaExcluido;
 
         long int TamByte = arqnew.tellg();
         int qtdDados = int(TamByte / sizeof(remedios));
 
-        for (int i = 0; i < qtdDados; i++)
+        for (int i = 0; i <= qtdDados; i++)
         {
             arqnew.seekg(i * sizeof(remedios));
             arqnew.read((char *)(&verificaExcluido), sizeof(remedios));
@@ -423,24 +423,10 @@ int Cadastrar_Dado()
                 arqnew.seekp(i * sizeof(remedios));
                 arqnew.write((char *)(&novoremedio), sizeof(remedios));
                 arqnew.close();
-                i = qtdDados;
+                i = qtdDados + 1;
             }
         }
     }
-
-    remedios teste;
-    ifstream arqteste("BaseDados_binario.dat");
-    arqteste.seekg(pos);
-    arqteste.read((char *)(&teste), sizeof(remedios));
-
-    cout << teste.custo << " ";
-    cout << teste.venda << " ";
-    cout << teste.fornecedor << " ";
-    cout << teste.codigo << " ";
-    cout << teste.tarja << " | ";
-    cout << teste.status << " ";
-
-    delay(15);
 
     if (achoExcluido == false)
     {
@@ -473,8 +459,7 @@ int Cadastrar_Dado()
 
 int Remover_Dado()
 {
-
-    fstream arqDeleta("BaseDados_binario.dat", ios::in | ios::out | ios::ate);
+    fstream arqDeleta("BaseDados_binario.dat", ios::binary | ios::in | ios::out | ios::ate);
 
     if (arqDeleta.fail())
     {
@@ -492,21 +477,19 @@ int Remover_Dado()
     {
         long long valorBuscado;
         bool achou = false;
+        remedios excluir;
 
-        // interação com o usuario afim de guia-lo para realizar o cadastro
         cout << endl;
         cout << endl;
         cout << endl;
-
         cout << "   Informe o codigo de barras do remedio que deseja excluir: ";
         cin >> valorBuscado;
 
-        remedios excluir;
         // Verifica qantidade de dados
         long int TamByte = arqDeleta.tellg();
-        int qtdDados = int(TamByte / sizeof(remedios));
+        int qtdDados = (TamByte / sizeof(remedios));
 
-        for (int i = 0; i < qtdDados; i++)
+        for (int i = 0; i <= qtdDados; i++)
         {
             arqDeleta.seekg(i * sizeof(remedios));
             arqDeleta.read((char *)(&excluir), sizeof(remedios));
@@ -519,7 +502,7 @@ int Remover_Dado()
                 arqDeleta.seekp(i * sizeof(remedios));
                 arqDeleta.write((char *)(&excluir), sizeof(remedios));
 
-                i = qtdDados;
+                i = qtdDados + 1;
             }
         }
 
@@ -726,6 +709,59 @@ int Buscar_Registro()
 
 int Imprimir_Arq_Inteiro()
 {
+    // Abre aequivo para leitura
+    ifstream arqExport("BaseDados_binario.dat", ios::binary | ios::ate);
+
+    // verifica se o nome informado é valido
+    if (arqExport.fail())
+    {
+        cout << endl;
+        cout << "   ARQUIVO BINARIO NAO ENCONTRADO!" << endl;
+        cout << "   REALIZAR IMPORTACAO DA BASE DE DADOS!";
+        delay(5);
+        cout << endl;
+        terminal_clear();
+
+        return 0;
+    }
+
+    else
+    {
+        // Verifica qantidade de dados
+        long int TamByte = arqExport.tellg();
+        int qtdDados = int(TamByte / sizeof(remedios));
+
+        arqExport.seekg(0);
+
+        // copia valores do aquivo binario para  o vetorexport
+        remedios vetorExport[qtdDados];
+        arqExport.read((char *)&vetorExport, qtdDados * sizeof(remedios));
+        arqExport.close();
+
+        for (int i = 0; i < qtdDados; i++)
+        {
+            // if (vetorExport[i].status == true)
+            // {
+            // excreve no arquino CSV
+            cout << i + 1 << ": ";
+            cout << vetorExport[i].custo << ";";
+            cout << vetorExport[i].venda << ";";
+            cout << vetorExport[i].fornecedor << ";";
+            cout << vetorExport[i].codigo << ";";
+            cout << vetorExport[i].tarja << " | ";
+            cout << vetorExport[i].status << endl;
+            // }
+        }
+
+        int saifuncao = 0;
+        while (saifuncao == 0)
+        {
+            cin >> saifuncao;
+        }
+        cout << endl;
+        terminal_clear();
+        return 0;
+    }
 }
 
 int Imprimir_Trecho_Arq()
