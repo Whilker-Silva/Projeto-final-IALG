@@ -52,7 +52,7 @@ int main()
 
     int selecao = 0;
 
-    while (selecao != 9)
+    while (selecao != 8)
     {
         if (selecao == 0)
         {
@@ -93,11 +93,7 @@ int main()
         {
             selecao = Imprimir_Arq_Inteiro();
         }
-
-        else if (selecao == 9)
-        {
-            selecao = Imprimir_Trecho_Arq();
-        }
+        
     }
 
     return 0;
@@ -120,7 +116,7 @@ void delay(int tempo)
 #if defined _WIN32
     Sleep(tempo * 1000);
 #else
-    usleep(tempo * 1000);
+    sleep(tempo);
 #endif
 }
 
@@ -149,11 +145,9 @@ int menu(int escolha)
         cout << "   |---------------------------------------|" << endl;
         cout << "   | [6] Buscar Um Registro                |" << endl;
         cout << "   |---------------------------------------|" << endl;
-        cout << "   | [7] Imprimir O Arquivo Inteiro        |" << endl;
+        cout << "   | [7] Imprimir                          |" << endl;
         cout << "   |---------------------------------------|" << endl;
-        cout << "   | [8] Imprimir Um Trecho Do Arquivo     |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [9] Sair                              |" << endl;
+        cout << "   | [8] Sair                              |" << endl;
         cout << "   +---------------------------------------+" << endl;
         cout << endl;
         cout << endl;
@@ -169,11 +163,12 @@ int menu(int escolha)
         se for valido, retornar valor convertido para inteiro
         */
         if (n != "0" and n != "1" and n != "2" and n != "3" and n != "4" and
-            n != "5" and n != "6" and n != "7" and n != "8" and n != "9")
+            n != "5" and n != "6" and n != "7" and n != "8")
         {
             cout << "                        OPCAO INVALIDA!";
             delay(2);
 
+            cout << endl;
             terminal_clear();
             return 0;
         }
@@ -208,6 +203,7 @@ int Importar_dados_CSV()
         cout << "   ARQUIVO NAO ENCONTRADO!" << endl;
         cout << "   VERIFIQUE O NOME DO ARQUIVO QUE DESEJA IMPORTAR!";
         delay(5);
+        cout << endl;
         terminal_clear();
 
         return 0;
@@ -254,6 +250,7 @@ int Importar_dados_CSV()
 
         cout << "   ARQUIVO IMPORTADO COM SUCESSO!";
         delay(3);
+        cout << endl;
         terminal_clear();
 
         return 0;
@@ -320,6 +317,7 @@ int Exportar_dados_CSV()
         cout << "   ARQUIVO BINARIO NAO ENCONTRADO!" << endl;
         cout << "   REALIZAR IMPORTACAO DA BASE DE DADOS!";
         delay(5);
+        cout << endl;
         terminal_clear();
 
         return 0;
@@ -364,6 +362,7 @@ int Exportar_dados_CSV()
         cout << "   ARQUIVO EXPORTADO COM SUCESSO!";
 
         delay(3);
+        cout << endl;
         terminal_clear();
         return 0;
     }
@@ -464,6 +463,7 @@ int Ordenar_Dados()
         cout << "   ARQUIVO BINARIO NAO ENCONTRADO!" << endl;
         cout << "   REALIZAR IMPORTACAO DA BASE DE DADOS!";
         delay(5);
+        cout << endl;
         terminal_clear();
 
         return 0;
@@ -520,6 +520,7 @@ int Ordenar_Dados()
 
             cout << "   ARQUIVO ORDENADO COM SUCESSO!";
             delay(3);
+            cout << endl;
             terminal_clear();
             return 0;
         }
@@ -534,6 +535,7 @@ int Ordenar_Dados()
         {
             cout << "                             OPCAO INVALIDA!";
             delay(2);
+            cout << endl;
             terminal_clear();
             return 5;
         }
