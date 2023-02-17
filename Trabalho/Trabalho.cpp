@@ -29,6 +29,7 @@ struct remedios
     float custo, venda;
     long long codigo;
     char fornecedor[80], tarja[50];
+    bool status;
 };
 
 // Declacaração de funções
@@ -238,6 +239,8 @@ int Importar_dados_CSV()
 
             aux = dado(arqin);
             strcpy(novoremedio[i].tarja, aux.c_str());
+
+            novoremedio[i].status = true;
         }
 
         // reliaza a escrita do vetor de registro no aquivo binario
@@ -339,12 +342,16 @@ int Exportar_dados_CSV()
 
         for (int i = 0; i < qtdDados; i++)
         {
+            // if (vetorExport[i].status == true)
+            // {
             // excreve no arquino CSV
             arqExpot_csv << vetorExport[i].custo << ";";
             arqExpot_csv << vetorExport[i].venda << ";";
             arqExpot_csv << vetorExport[i].fornecedor << ";";
             arqExpot_csv << vetorExport[i].codigo << ";";
-            arqExpot_csv << vetorExport[i].tarja << endl;
+            arqExpot_csv << vetorExport[i].tarja << " | ";
+            arqExpot_csv << vetorExport[i].status << endl;
+            // }
         }
 
         cout << endl;
@@ -360,7 +367,8 @@ int Exportar_dados_CSV()
 
 int Cadastrar_Dado()
 {
-    bool novoCadastro = 0;
+    bool novoCadastro = false;
+    bool achoExcluido = false;
 
     remedios novoremedio;
     string fornecedor, tarja;
@@ -369,27 +377,78 @@ int Cadastrar_Dado()
     cout << endl;
     cout << endl;
     cout << endl;
+
     cout << "   Valor de custo: ";
     cin >> novoremedio.custo;
+
     cout << "   valor de venda: ";
     cin >> novoremedio.venda;
-    cout << "   Fabrincate: ";
+
+    cout << "   Fornecedor: ";
     cin.ignore();
     getline(cin, fornecedor);
     strcpy(novoremedio.fornecedor, fornecedor.c_str());
+
     cout << "   Codigo: ";
     cin >> novoremedio.codigo;
+
     cout << "   Tarja: ";
     cin.ignore();
     getline(cin, tarja);
     strcpy(novoremedio.tarja, tarja.c_str());
-    cout << endl;
-    cout << endl;
 
-    // Escreve o novo dado no final do arquivo binario
-    ofstream arqnew("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
-    arqnew.write((const char *)&novoremedio, 1 * sizeof(remedios));
-    arqnew.close();
+    novoremedio.status = true;
+
+    cout << endl;
+    cout << endl;
+    int pos;
+    if (achoExcluido == false)
+    {
+
+        fstream arqnew("BaseDados_binario.dat", ios::in | ios::out | ios::ate);
+        remedios verificaExcluido;
+
+        long int TamByte = arqnew.tellg();
+        int qtdDados = int(TamByte / sizeof(remedios));
+
+        for (int i = 0; i < qtdDados; i++)
+        {
+            arqnew.seekg(i * sizeof(remedios));
+            arqnew.read((char *)(&verificaExcluido), sizeof(remedios));
+
+            if (verificaExcluido.status == false)
+            {
+                pos = i * sizeof(remedios);
+                achoExcluido = true;
+                arqnew.seekp(i * sizeof(remedios));
+                arqnew.write((char *)(&novoremedio), sizeof(remedios));
+                arqnew.close();
+                i = qtdDados;
+            }
+        }
+    }
+
+    remedios teste;
+    ifstream arqteste("BaseDados_binario.dat");
+    arqteste.seekg(pos);
+    arqteste.read((char *)(&teste), sizeof(remedios));
+
+    cout << teste.custo << " ";
+    cout << teste.venda << " ";
+    cout << teste.fornecedor << " ";
+    cout << teste.codigo << " ";
+    cout << teste.tarja << " | ";
+    cout << teste.status << " ";
+
+    delay(15);
+
+    if (achoExcluido == false)
+    {
+        // Escreve o novo dado no final do arquivo binario
+        ofstream arqnew("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
+        arqnew.write((const char *)&novoremedio, sizeof(remedios));
+        arqnew.close();
+    }
 
     cout << "   Produto cadastrado! " << endl;
     cout << endl;
@@ -414,6 +473,76 @@ int Cadastrar_Dado()
 
 int Remover_Dado()
 {
+
+    fstream arqDeleta("BaseDados_binario.dat", ios::in | ios::out | ios::ate);
+
+    if (arqDeleta.fail())
+    {
+        cout << endl;
+        cout << "   ARQUIVO BINARIO NAO ENCONTRADO!" << endl;
+        cout << "   REALIZAR IMPORTACAO DA BASE DE DADOS!";
+        delay(5);
+        cout << endl;
+        terminal_clear();
+
+        return 0;
+    }
+
+    else
+    {
+        long long valorBuscado;
+        bool achou = false;
+
+        // interação com o usuario afim de guia-lo para realizar o cadastro
+        cout << endl;
+        cout << endl;
+        cout << endl;
+
+        cout << "   Informe o codigo de barras do remedio que deseja excluir: ";
+        cin >> valorBuscado;
+
+        remedios excluir;
+        // Verifica qantidade de dados
+        long int TamByte = arqDeleta.tellg();
+        int qtdDados = int(TamByte / sizeof(remedios));
+
+        for (int i = 0; i < qtdDados; i++)
+        {
+            arqDeleta.seekg(i * sizeof(remedios));
+            arqDeleta.read((char *)(&excluir), sizeof(remedios));
+
+            if (excluir.codigo == valorBuscado and excluir.status != false)
+            {
+
+                achou = true;
+                excluir.status = false;
+                arqDeleta.seekp(i * sizeof(remedios));
+                arqDeleta.write((char *)(&excluir), sizeof(remedios));
+
+                i = qtdDados;
+            }
+        }
+
+        if (achou == true)
+        {
+            cout << endl;
+            cout << "   REGISTRO EXCLUIDO COM SUCESSO!" << endl;
+            delay(3);
+            cout << endl;
+            terminal_clear();
+            return 0;
+        }
+
+        else
+        {
+            cout << endl;
+            cout << "   REGISTRO NAO ENCONTRADO!" << endl;
+            delay(3);
+            cout << endl;
+            terminal_clear();
+            return 0;
+        }
+    }
 }
 
 int Ordenar_Dados()
