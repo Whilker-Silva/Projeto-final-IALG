@@ -869,7 +869,7 @@ void shell_sort(remedios vet[], int size, string tipo)
 
 int Buscar_Registro()
 {
-    string tipoBUsca;
+    string tipoBusca;
 
     // Abre para leitura e posiciona no final do arquivo
     fstream arquivo("BaseDados_binario.dat", ios::binary | ios::in | ios::ate);
@@ -890,7 +890,7 @@ int Buscar_Registro()
     else
     {
         // Interface para verificar tipo de busca
-        while (tipoBUsca != "1" and tipoBUsca != "2" and tipoBUsca != "3")
+        while (tipoBusca != "1" and tipoBusca != "2" and tipoBusca != "3")
         {
 
             // lista de opções de campos para busca
@@ -909,12 +909,12 @@ int Buscar_Registro()
 
             cout << endl;
             cout << "   ";
-            cin >> tipoBUsca;
+            cin >> tipoBusca;
             terminal_clear();
         }
 
         // Busca por código de barras
-        if (tipoBUsca == "1")
+        if (tipoBusca == "1")
         {
             string codigo_buscarS;
             long long codigo_buscar;
@@ -943,7 +943,7 @@ int Buscar_Registro()
                     arquivo.read((char *)&codigo_compara, sizeof(remedios));
 
                     // Se encontrar imprime na tela
-                    if (codigo_buscar == codigo_compara.codigo)
+                    if (codigo_buscar == codigo_compara.codigo and codigo_compara.status == 1)
                     {
                         achou = true;
 
@@ -1023,7 +1023,7 @@ int Buscar_Registro()
         }
 
         // Busca por fornecedor
-        else if (tipoBUsca == "2")
+        else if (tipoBusca == "2")
         {
             string fornecedorBuscar;
             cout << endl;
@@ -1057,7 +1057,7 @@ int Buscar_Registro()
                 }
 
                 // se encontrar o valor buscado imprimi na tela
-                if (fornecedorBuscar == compara)
+                if (fornecedorBuscar == compara and fornecedor_compara.status == 1)
                 {
                     achou = true;
                     cout << endl;
@@ -1128,7 +1128,7 @@ int Buscar_Registro()
             }
         }
 
-        else if (tipoBUsca == "3")
+        else if (tipoBusca == "3")
         {
             terminal_clear();
             return 0;
@@ -1138,6 +1138,30 @@ int Buscar_Registro()
 
 int Imprimir_Arq()
 {
+    string tipoImpressao;
+    while (tipoImpressao != "1" and tipoImpressao != "2" and tipoImpressao != "3")
+    {
+
+        // lista de opções de campos para impressão
+        cout << endl;
+        cout << endl;
+        cout << endl;
+        cout << "   +---------------------------------------+" << endl;
+        cout << "   |              IMPRESSAO                |" << endl;
+        cout << "   +---------------------------------------+" << endl;
+        cout << "   | [1] Base completa                     |" << endl;
+        cout << "   |---------------------------------------|" << endl;
+        cout << "   | [2] Trecho da base                    |" << endl;
+        cout << "   |---------------------------------------|" << endl;
+        cout << "   | [3] Cancela impressao                 |" << endl;
+        cout << "   |---------------------------------------|" << endl;
+
+        cout << endl;
+        cout << "   ";
+        cin >> tipoImpressao;
+        terminal_clear();
+    }
+
     // Abre aequivo para leitura
     ifstream arqExport("BaseDados_binario.dat", ios::binary | ios::ate);
 
@@ -1156,6 +1180,7 @@ int Imprimir_Arq()
 
     else
     {
+
         // Verifica qantidade de dados
         long int TamByte = arqExport.tellg();
         int qtdDados = int(TamByte / sizeof(remedios));
@@ -1167,19 +1192,82 @@ int Imprimir_Arq()
         arqExport.read((char *)&vetorExport, qtdDados * sizeof(remedios));
         arqExport.close();
 
-        for (int i = 0; i < qtdDados; i++)
+        // impresão completa
+        if (tipoImpressao == "1")
         {
-            // if (vetorExport[i].status == true)
-            // {
-            // excreve no arquino CSV
-            cout << i + 1 << ": ";
-            cout << vetorExport[i].custo << ";";
-            cout << vetorExport[i].venda << ";";
-            cout << vetorExport[i].fornecedor << ";";
-            cout << vetorExport[i].codigo << ";";
-            cout << vetorExport[i].tarja << " | ";
-            cout << vetorExport[i].status << endl;
-            // }
+            for (int i = 0; i < qtdDados; i++)
+            {
+                if (vetorExport[i].status == true)
+                {
+                    // excreve no arquino CSV
+                    cout << endl;
+                    cout << "    ";
+                    cout << i + 1 << ": ";
+                    cout << vetorExport[i].custo << ";";
+                    cout << vetorExport[i].venda << ";";
+                    cout << vetorExport[i].fornecedor << ";";
+                    cout << vetorExport[i].codigo << ";";
+                    cout << vetorExport[i].tarja << endl;
+                }
+            }
+        }
+
+        else if (tipoImpressao == "2")
+        {
+
+            string inicioS, fimS;
+            int inicio, fim;
+            cout << endl;
+            cout << endl;
+            cout << endl;
+            cout << "   Informe o a primeira linha do trecho que deseja imprimir: ";
+            cin >> inicioS;
+            cout << "   Informe o a ultima linha do trecho que deseja imprimir: ";
+            cin >> fimS;
+
+            // se o valor informado for valido
+            if (verificaINT(inicioS, inicio) == true and
+                verificaINT(fimS, fim) == true and
+                fim <= qtdDados)
+            {
+
+                for (int i = inicio; i <= fim; i++)
+                {
+                    if (vetorExport[i].status == true)
+                    {
+                        // excreve no arquino CSV
+                        cout << endl;
+                        cout << "    ";
+                        cout << i << ": ";
+                        cout << vetorExport[i - 1].custo << ";";
+                        cout << vetorExport[i - 1].venda << ";";
+                        cout << vetorExport[i - 1].fornecedor << ";";
+                        cout << vetorExport[i - 1].codigo << ";";
+                        cout << vetorExport[i - 1].tarja << endl;
+                    }
+
+                    // Se passa por algum dado excluido decrementar i
+                    else
+                    {
+                        i--;
+                    }
+                }
+            }
+
+            else
+            {
+                cout << endl;
+                cout << "   VALOR INFORMADO INVALIDO" << endl;
+                delay(3);
+                terminal_clear();
+                return 0;
+            }
+        }
+
+        else if (tipoImpressao == "3")
+        {
+            terminal_clear();
+            return 0;
         }
 
         int saifuncao = 0;
