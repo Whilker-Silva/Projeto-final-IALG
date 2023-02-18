@@ -1212,6 +1212,7 @@ int Imprimir_Arq()
             }
         }
 
+        // Imprime trecho
         else if (tipoImpressao == "2")
         {
 
@@ -1264,16 +1265,25 @@ int Imprimir_Arq()
             }
         }
 
+        // cancela impressão
         else if (tipoImpressao == "3")
         {
             terminal_clear();
             return 0;
         }
 
-        int saifuncao = 0;
-        while (saifuncao == 0)
+        cout << endl;
+        cout << endl;
+        cout << endl;
+        cout << "   PARA VOLTAR PRECIONE A TECLA ENTER";
+
+        int cont = 0;
+        string saifuncao;
+        while (cont == 0)
         {
-            cin >> saifuncao;
+            cin.ignore();
+            getline(cin, saifuncao);
+            cont++;
         }
         cout << endl;
         terminal_clear();
