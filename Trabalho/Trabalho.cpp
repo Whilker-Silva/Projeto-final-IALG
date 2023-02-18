@@ -130,7 +130,8 @@ void delay(int tempo)
 bool verificaINT(string numero, int &n)
 {
     bool aux = true;
-    for (int i = 0; i < numero.size(); i++)
+    int tam = numero.size();
+    for (int i = 0; i < tam; i++)
     {
         if (!isdigit(numero[i]))
         {
@@ -152,7 +153,8 @@ bool verificaINT(string numero, int &n)
 bool verificaFLOAT(string numero, float &n)
 {
     bool aux = true;
-    for (int i = 0; i < numero.size(); i++)
+    int tam = numero.size();
+    for (int i = 0; i < tam; i++)
     {
         if (!isdigit(numero[i]) and numero[i] != '.')
         {
@@ -174,7 +176,8 @@ bool verificaFLOAT(string numero, float &n)
 bool verificaLONGLONG(string numero, long long &n)
 {
     bool aux = true;
-    for (int i = 0; i < numero.size(); i++)
+    int tam = numero.size();
+    for (int i = 0; i < tam; i++)
     {
         if (!isdigit(numero[i]) and numero[i] != '.')
         {
@@ -195,58 +198,55 @@ bool verificaLONGLONG(string numero, long long &n)
 deve informar o que deseja realizar no sistema*/
 int menu(int escolha)
 {
-    if (escolha == 0)
+    // Interface para interação com usuário
+    cout << endl;
+    cout << endl;
+    cout << endl;
+    cout << "   +---------------------------------------+" << endl;
+    cout << "   |                MENU                   |" << endl;
+    cout << "   +---------------------------------------+" << endl;
+    cout << "   | [1] Importar Arquivo CSV              |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [2] Exportar Dados Para CSV           |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [3] Cadastrar Um Novo Elemento        |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [4] Remover Dado Existente            |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [5] Ordenar Dados                     |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [6] Buscar Um Registro                |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [7] Imprimir                          |" << endl;
+    cout << "   |---------------------------------------|" << endl;
+    cout << "   | [8] Sair                              |" << endl;
+    cout << "   +---------------------------------------+" << endl;
+    cout << endl;
+    cout << endl;
+    cout << "   Selecione uma opcao: ";
+
+    // Usuário informa opção desejada
+    string n;
+    cin >> n;
+
+    /*
+    Verificando se valor informado é valido
+    Se for inválido, mostrar mensagem de erro e retornar 0
+    Se for valido, retornar valor convertido para inteiro
+    */
+    if (n != "0" and n != "1" and n != "2" and n != "3" and n != "4" and
+        n != "5" and n != "6" and n != "7" and n != "8")
     {
-        // Interface para interação com usuário
-        cout << endl;
-        cout << endl;
-        cout << endl;
-        cout << "   +---------------------------------------+" << endl;
-        cout << "   |                MENU                   |" << endl;
-        cout << "   +---------------------------------------+" << endl;
-        cout << "   | [1] Importar Arquivo CSV              |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [2] Exportar Dados Para CSV           |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [3] Cadastrar Um Novo Elemento        |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [4] Remover Dado Existente            |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [5] Ordenar Dados                     |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [6] Buscar Um Registro                |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [7] Imprimir                          |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [8] Sair                              |" << endl;
-        cout << "   +---------------------------------------+" << endl;
-        cout << endl;
-        cout << endl;
-        cout << "   Selecione uma opcao: ";
+        cout << "                        OPCAO INVALIDA!";
+        delay(2);
+        terminal_clear();
+        return 0;
+    }
 
-        // Usuário informa opção desejada
-        string n;
-        cin >> n;
-
-        /*
-        Verificando se valor informado é valido
-        Se for inválido, mostrar mensagem de erro e retornar 0
-        Se for valido, retornar valor convertido para inteiro
-        */
-        if (n != "0" and n != "1" and n != "2" and n != "3" and n != "4" and
-            n != "5" and n != "6" and n != "7" and n != "8")
-        {
-            cout << "                        OPCAO INVALIDA!";
-            delay(2);
-            terminal_clear();
-            return 0;
-        }
-
-        else
-        {
-            terminal_clear();
-            return stoi(n);
-        }
+    else
+    {
+        terminal_clear();
+        return stoi(n);
     }
 }
 
@@ -486,7 +486,6 @@ int Cadastrar_Dado()
 
     cout << endl;
     cout << endl;
-    int pos;
 
     // verifica se valores informados são válidos
     if (verificaFLOAT(custo, novoremedio.custo) == false)
@@ -537,7 +536,6 @@ int Cadastrar_Dado()
 
                 if (verificaExcluido.status == false)
                 {
-                    pos = i * sizeof(remedios);
                     achoExcluido = true;
                     arqnew.seekp(i * sizeof(remedios));
                     arqnew.write((char *)(&novoremedio), sizeof(remedios));
@@ -998,6 +996,8 @@ int Buscar_Registro()
                 if (achou == false)
                 {
                     cout << "   CODIGO NAO ENCONTRADO";
+                    delay(3);
+                    return 6;
                 }
 
                 // Se encontrar verificar se deseja realziar nova bucas
@@ -1088,7 +1088,8 @@ int Buscar_Registro()
                 um vetor de caracteres, dessa forma para realizar
                 a comparação realizamos a conversão para string compara*/
                 string compara;
-                for (int i = 0; i < strlen(fornecedor_compara.fornecedor); i++)
+                int tam = strlen(fornecedor_compara.fornecedor);
+                for (int i = 0; i < tam; i++)
                 {
                     compara += fornecedor_compara.fornecedor[i];
                 }
@@ -1165,7 +1166,7 @@ int Buscar_Registro()
             }
         }
 
-        else if (tipoBusca == "3")
+        else
         {
             terminal_clear();
             return 0;
@@ -1175,29 +1176,6 @@ int Buscar_Registro()
 
 int Imprimir_Arq()
 {
-    string tipoImpressao;
-    while (tipoImpressao != "1" and tipoImpressao != "2" and tipoImpressao != "3")
-    {
-
-        // lista de opções de campos para impressão
-        cout << endl;
-        cout << endl;
-        cout << endl;
-        cout << "   +---------------------------------------+" << endl;
-        cout << "   |              IMPRESSAO                |" << endl;
-        cout << "   +---------------------------------------+" << endl;
-        cout << "   | [1] Base completa                     |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [2] Trecho da base                    |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-        cout << "   | [3] Cancela impressao                 |" << endl;
-        cout << "   |---------------------------------------|" << endl;
-
-        cout << endl;
-        cout << "   ";
-        cin >> tipoImpressao;
-        terminal_clear();
-    }
 
     // Abre aequivo para leitura
     ifstream arqExport("BaseDados_binario.dat", ios::binary | ios::ate);
@@ -1217,6 +1195,30 @@ int Imprimir_Arq()
 
     else
     {
+
+        string tipoImpressao;
+        while (tipoImpressao != "1" and tipoImpressao != "2" and tipoImpressao != "3")
+        {
+
+            // lista de opções de campos para impressão
+            cout << endl;
+            cout << endl;
+            cout << endl;
+            cout << "   +---------------------------------------+" << endl;
+            cout << "   |              IMPRESSAO                |" << endl;
+            cout << "   +---------------------------------------+" << endl;
+            cout << "   | [1] Base completa                     |" << endl;
+            cout << "   |---------------------------------------|" << endl;
+            cout << "   | [2] Trecho da base                    |" << endl;
+            cout << "   |---------------------------------------|" << endl;
+            cout << "   | [3] Cancela impressao                 |" << endl;
+            cout << "   |---------------------------------------|" << endl;
+
+            cout << endl;
+            cout << "   ";
+            cin >> tipoImpressao;
+            terminal_clear();
+        }
 
         // Verifica qantidade de dados
         long int TamByte = arqExport.tellg();
@@ -1239,7 +1241,6 @@ int Imprimir_Arq()
                     // excreve no arquino CSV
                     cout << endl;
                     cout << "    ";
-                    cout << i + 1 << ": ";
                     cout << vetorExport[i].custo << ";";
                     cout << vetorExport[i].venda << ";";
                     cout << vetorExport[i].fornecedor << ";";
@@ -1276,7 +1277,6 @@ int Imprimir_Arq()
                         // excreve no arquino CSV
                         cout << endl;
                         cout << "    ";
-                        cout << i << ": ";
                         cout << vetorExport[i - 1].custo << ";";
                         cout << vetorExport[i - 1].venda << ";";
                         cout << vetorExport[i - 1].fornecedor << ";";
@@ -1287,7 +1287,7 @@ int Imprimir_Arq()
                     // Se passa por algum dado excluido decrementar i
                     else
                     {
-                        i--;
+                        fim++;
                     }
                 }
             }
