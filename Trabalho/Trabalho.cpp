@@ -758,9 +758,44 @@ int Ordenar_Dados()
             // Realizada a ordenação de acordo com campo escolhido
             shell_sort(vetorOrdena, qtdDados, n);
 
+            // verifica qtd dados validos
+            int cont = 0;
+            for (int i = 0; i < qtdDados; i++)
+            {
+                if (vetorOrdena[i].status == true)
+                {
+                    cont++;
+                }
+            }
+
+            // cria vetor auxiliar com qtd de dados validos
+            remedios vetorAux[cont];
+
+            // preenche vetor com dados validos
+            int j = 0;
+            for (int i = 0; i < cont; i++)
+            {
+                if (vetorOrdena[j].status == true)
+                {
+                    vetorAux[i] = vetorOrdena[j];
+                    j++;
+                }
+
+                else
+                {
+                    while (vetorOrdena[j].status == false)
+                    {
+                        j++;
+                    }
+
+                    vetorAux[i] = vetorOrdena[j];
+                    j++;
+                }
+            }
+
             // escreve vetor ordenado no aquivo binario
             ofstream arqOrdenado("BaseDados_binario.dat", ios::binary);
-            arqOrdenado.write((char *)&vetorOrdena, qtdDados * sizeof(remedios));
+            arqOrdenado.write((char *)&vetorAux, cont * sizeof(remedios));
             arqOrdenado.close();
 
             cout << "   ARQUIVO ORDENADO COM SUCESSO!";
@@ -1208,6 +1243,7 @@ int Imprimir_Arq()
                     cout << vetorExport[i].fornecedor << ";";
                     cout << vetorExport[i].codigo << ";";
                     cout << vetorExport[i].tarja << endl;
+                    
                 }
             }
         }
