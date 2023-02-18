@@ -1,7 +1,7 @@
 /*
     Alunos:
-    Pedro Henrique Pigozzi - 202022
-    Victor Hugo Daia Lorenzato - 202022
+    Pedro Henrique Pigozzi - 202210171
+    Victor Hugo Daia Lorenzato - 202210739
     Whilker Henrique Dos Santos Silva - 202020597
     Turma 22A
 
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <string.h>
 #include <cstring>
+#include <ctype.h>
 
 // Biblioteca para uso do sleep no windows ou linux
 #if defined _WIN32 || defined _WIN64
@@ -44,8 +45,10 @@ int Cadastrar_Dado();
 int Remover_Dado();
 int Ordenar_Dados();
 int Buscar_Registro();
-int Imprimir_Arq_Inteiro();
-int Imprimir_Trecho_Arq();
+int Imprimir_Arq();
+bool verificaINT(string cin, int &n);
+bool verificaFLOAT(string numero, float &n);
+bool verificaLONGLONG(string numero, long long &n);
 void shell_sort(remedios vet[], int size, string tipo);
 void delay(int tempo);
 string dado(ifstream &arquivo);
@@ -94,7 +97,7 @@ int main()
 
         else if (selecao == 7)
         {
-            selecao = Imprimir_Arq_Inteiro();
+            selecao = Imprimir_Arq();
         }
     }
 
@@ -117,8 +120,75 @@ void delay(int tempo)
 #if defined _WIN32 || defined _WIN64
     Sleep(tempo * 1000);
 #else
+    cout << endl;
     sleep(tempo);
 #endif
+}
+
+// Função realiza a verificação se um string é apenas digitos
+// Retorna verdadeiro ou false e altera valor de n por referencia
+bool verificaINT(string numero, int &n)
+{
+    bool aux = true;
+    for (int i = 0; i < numero.size(); i++)
+    {
+        if (!isdigit(numero[i]))
+        {
+            aux = false;
+            i = numero.size();
+        }
+    }
+
+    if (aux == true)
+    {
+        n = stoi(numero);
+    }
+
+    return aux;
+}
+
+// Função realiza a verificação se um string é apenas digitos
+// Retorna verdadeiro ou false e altera valor de n por referencia
+bool verificaFLOAT(string numero, float &n)
+{
+    bool aux = true;
+    for (int i = 0; i < numero.size(); i++)
+    {
+        if (!isdigit(numero[i]) and numero[i] != '.')
+        {
+            aux = false;
+            i = numero.size();
+        }
+    }
+
+    if (aux == true)
+    {
+        n = stof(numero);
+    }
+
+    return aux;
+}
+
+// Função realiza a verificação se um string é apenas digitos
+// Retorna verdadeiro ou false e altera valor de n por referencia
+bool verificaLONGLONG(string numero, long long &n)
+{
+    bool aux = true;
+    for (int i = 0; i < numero.size(); i++)
+    {
+        if (!isdigit(numero[i]) and numero[i] != '.')
+        {
+            aux = false;
+            i = numero.size();
+        }
+    }
+
+    if (aux == true)
+    {
+        n = stoll(numero);
+    }
+
+    return aux;
 }
 
 /*Função menu, mostra as subfunções na qual, o usario
@@ -168,8 +238,6 @@ int menu(int escolha)
         {
             cout << "                        OPCAO INVALIDA!";
             delay(2);
-
-            cout << endl;
             terminal_clear();
             return 0;
         }
@@ -188,7 +256,7 @@ em arquivo CSV para arquivo binário
 */
 int Importar_dados_CSV()
 {
-    string nome_arquvo;
+    string nome_arquvo, numero;
     int n;
 
     cout << endl;
@@ -197,7 +265,7 @@ int Importar_dados_CSV()
     cout << "   Informe o nome do arquivo que deseja importar: ";
     cin >> nome_arquvo;
     cout << "   Informe a quantidade de dados que deseja importar: ";
-    cin >> n;
+    cin >> numero;
 
     ifstream arqin(nome_arquvo);
 
@@ -207,8 +275,19 @@ int Importar_dados_CSV()
         cout << endl;
         cout << "   ARQUIVO NAO ENCONTRADO!" << endl;
         cout << "   VERIFIQUE O NOME DO ARQUIVO QUE DESEJA IMPORTAR!";
-        delay(5);
+        delay(3);
+        terminal_clear();
+
+        return 0;
+    }
+
+    // Verifica se valor informado é inteiro
+    else if (verificaINT(numero, n) == false)
+    {
+
         cout << endl;
+        cout << "   VALOR INFORMADO INVALIDO" << endl;
+        delay(3);
         terminal_clear();
 
         return 0;
@@ -257,7 +336,6 @@ int Importar_dados_CSV()
 
         cout << "   ARQUIVO IMPORTADO COM SUCESSO!";
         delay(3);
-        cout << endl;
         terminal_clear();
 
         return 0;
@@ -265,8 +343,7 @@ int Importar_dados_CSV()
 }
 
 /*Função para extrair os dados do arquivo CSV,
-1º separa os campos"
-1º separa os campos"
+1º separa os campos
 2º formata de acordo que seu tipo
 3º retorna uma string com o dado já trado*/
 string dado(ifstream &arquivo)
@@ -317,7 +394,7 @@ int Exportar_dados_CSV()
     // Abre aequivo para leitura
     ifstream arqExport("BaseDados_binario.dat", ios::binary | ios::ate);
 
-    // verifica se o nome informado é valido
+    // verifica se arquivo.dat já foi impotado
     if (arqExport.fail())
     {
         cout << endl;
@@ -348,6 +425,7 @@ int Exportar_dados_CSV()
 
         for (int i = 0; i < qtdDados; i++)
         {
+            // Se dado não tiver exlcuido lógicamente
             if (vetorExport[i].status == true)
             {
                 // excreve no arquino CSV
@@ -364,7 +442,6 @@ int Exportar_dados_CSV()
         cout << "   ARQUIVO EXPORTADO COM SUCESSO!";
 
         delay(3);
-        cout << endl;
         terminal_clear();
         return 0;
     }
@@ -372,7 +449,8 @@ int Exportar_dados_CSV()
 
 int Cadastrar_Dado()
 {
-    bool novoCadastro = false;
+    string novoCadastroS;
+    int novoCadastro;
     bool achoExcluido = false;
 
     remedios novoremedio;
@@ -383,11 +461,13 @@ int Cadastrar_Dado()
     cout << endl;
     cout << endl;
 
+    string custo, venda, codigo;
+
     cout << "   Valor de custo: ";
-    cin >> novoremedio.custo;
+    cin >> custo;
 
     cout << "   valor de venda: ";
-    cin >> novoremedio.venda;
+    cin >> venda;
 
     cout << "   Fornecedor: ";
     cin.ignore();
@@ -395,7 +475,7 @@ int Cadastrar_Dado()
     strcpy(novoremedio.fornecedor, fornecedor.c_str());
 
     cout << "   Codigo: ";
-    cin >> novoremedio.codigo;
+    cin >> codigo;
 
     cout << "   Tarja: ";
     cin.ignore();
@@ -408,79 +488,141 @@ int Cadastrar_Dado()
     cout << endl;
     int pos;
 
-    if (achoExcluido == false)
+    // verifica se valores informados são válidos
+    if (verificaFLOAT(custo, novoremedio.custo) == false)
     {
-
-        fstream arqnew("BaseDados_binario.dat", ios::binary | ios::in | ios::out | ios::ate);
-        remedios verificaExcluido;
-
-        long int TamByte = arqnew.tellg();
-        int qtdDados = int(TamByte / sizeof(remedios));
-
-        for (int i = 0; i <= qtdDados; i++)
-        {
-            arqnew.seekg(i * sizeof(remedios));
-            arqnew.read((char *)(&verificaExcluido), sizeof(remedios));
-
-            if (verificaExcluido.status == false)
-            {
-                pos = i * sizeof(remedios);
-                achoExcluido = true;
-                arqnew.seekp(i * sizeof(remedios));
-                arqnew.write((char *)(&novoremedio), sizeof(remedios));
-                arqnew.close();
-                i = qtdDados + 1;
-            }
-        }
+        cout << endl;
+        cout << "   VALOR DE CUSTO INFORMADO E INVALIDO" << endl;
+        delay(3);
+        terminal_clear();
+        return 0;
     }
 
-    if (achoExcluido == false)
+    else if (verificaFLOAT(venda, novoremedio.venda) == false)
     {
-        // Escreve o novo dado no final do arquivo binario
-        ofstream arqnew("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
-        arqnew.write((const char *)&novoremedio, sizeof(remedios));
-        arqnew.close();
+        cout << endl;
+        cout << "   VALOR DE VENDA INFORMADO E INVALIDO" << endl;
+        delay(3);
+        terminal_clear();
+        return 0;
     }
 
-    cout << "   Produto cadastrado! " << endl;
-    cout << endl;
-
-    // Verifica se usuário deseja realizar mais 1 cadastro
-    cout << "   Deseja cadastrar mais algum produto?" << endl;
-    cout << "   [0] NAO  [1] SIM" << endl;
-    cout << "   ";
-    cin >> novoCadastro;
-
-    terminal_clear();
-    if (novoCadastro == 1)
+    else if (verificaLONGLONG(codigo, novoremedio.codigo) == false)
     {
-        return 3;
+        cout << endl;
+        cout << "   CODIGO INFORMADO E INVALIDO" << endl;
+        delay(3);
+        terminal_clear();
+        return 0;
     }
 
+    // se forem todos válidos
     else
     {
-        return 0;
+        if (achoExcluido == false)
+        {
+            // abre o arquivo para leitura e escrita binária
+            fstream arqnew("BaseDados_binario.dat", ios::binary | ios::in | ios::out | ios::ate);
+            remedios verificaExcluido;
+
+            // verifica tamanho
+            long int TamByte = arqnew.tellg();
+            int qtdDados = int(TamByte / sizeof(remedios));
+
+            // Procura no arquivo se há algum item excluido lógicamente e sobreescreve o dado
+            for (int i = 0; i <= qtdDados; i++)
+            {
+                arqnew.seekg(i * sizeof(remedios));
+                arqnew.read((char *)(&verificaExcluido), sizeof(remedios));
+
+                if (verificaExcluido.status == false)
+                {
+                    pos = i * sizeof(remedios);
+                    achoExcluido = true;
+                    arqnew.seekp(i * sizeof(remedios));
+                    arqnew.write((char *)(&novoremedio), sizeof(remedios));
+                    arqnew.close();
+                    i = qtdDados + 1;
+                }
+            }
+        }
+
+        // Se não existir dado deleta cadastra no final do arquivo
+        if (achoExcluido == false)
+        {
+            // Escreve o novo dado no final do arquivo binario
+            ofstream arqnew("BaseDados_binario.dat", ios::binary | ios::ate | ios::app);
+            arqnew.write((const char *)&novoremedio, sizeof(remedios));
+            arqnew.close();
+        }
+
+        cout << "   Produto cadastrado! " << endl;
+        cout << endl;
+
+        // Verifica se usuário deseja realizar mais 1 cadastro
+        cout << "   Deseja cadastrar mais algum produto?" << endl;
+        cout << "   [0] NAO  [1] SIM" << endl;
+        cout << "   ";
+        cin >> novoCadastroS;
+
+        // confirma se valor informado é válido
+        if (verificaINT(novoCadastroS, novoCadastro) == true)
+        {
+            terminal_clear();
+            if (novoCadastro == 1)
+            {
+                return 3;
+            }
+
+            else if (novoCadastro == 0)
+            {
+                return 0;
+            }
+
+            else
+            {
+                cout << endl;
+                cout << "   OPCAO INVALIDA" << endl;
+                delay(3);
+                terminal_clear();
+                return 0;
+            }
+        }
+
+        else
+        {
+            cout << endl;
+            cout << "   OPCAO INVALIDA" << endl;
+            delay(3);
+            terminal_clear();
+
+            return 0;
+        }
     }
 }
 
+// Função para realizar a exlcusão lógica de dados com base no código irformado
 int Remover_Dado()
 {
+    // abertura do arquivo para leitura e escrita no arquivo binario
     fstream arqDeleta("BaseDados_binario.dat", ios::binary | ios::in | ios::out | ios::ate);
 
+    // verifica se houve falha ao abrir arquivo
     if (arqDeleta.fail())
     {
         cout << endl;
         cout << "   ARQUIVO BINARIO NAO ENCONTRADO!" << endl;
         cout << "   REALIZAR IMPORTACAO DA BASE DE DADOS!";
-        delay(5);
-        cout << endl;
+        delay(3);
         terminal_clear();
 
         return 0;
     }
 
+    // se aquivo abriu com sucesso
     else
     {
+        string valorBuscadoS;
         long long valorBuscado;
         bool achou = false;
         remedios excluir;
@@ -489,51 +631,69 @@ int Remover_Dado()
         cout << endl;
         cout << endl;
         cout << "   Informe o codigo de barras do remedio que deseja excluir: ";
-        cin >> valorBuscado;
+        cin >> valorBuscadoS;
 
-        // Verifica qantidade de dados
-        long int TamByte = arqDeleta.tellg();
-        int qtdDados = (TamByte / sizeof(remedios));
-
-        for (int i = 0; i <= qtdDados; i++)
+        // verifica código informado
+        if (verificaLONGLONG(valorBuscadoS, valorBuscado) == true)
         {
-            arqDeleta.seekg(i * sizeof(remedios));
-            arqDeleta.read((char *)(&excluir), sizeof(remedios));
 
-            if (excluir.codigo == valorBuscado and excluir.status != false)
+            // Verifica qantidade de dados
+            long int TamByte = arqDeleta.tellg();
+            int qtdDados = (TamByte / sizeof(remedios));
+
+            // Busca no arquivo valor informado
+            // Se encontra muda status para false (exclusão lógica)
+            for (int i = 0; i <= qtdDados; i++)
             {
+                arqDeleta.seekg(i * sizeof(remedios));
+                arqDeleta.read((char *)(&excluir), sizeof(remedios));
 
-                achou = true;
-                excluir.status = false;
-                arqDeleta.seekp(i * sizeof(remedios));
-                arqDeleta.write((char *)(&excluir), sizeof(remedios));
+                if (excluir.codigo == valorBuscado and excluir.status != false)
+                {
 
-                i = qtdDados + 1;
+                    achou = true;
+                    excluir.status = false;
+                    arqDeleta.seekp(i * sizeof(remedios));
+                    arqDeleta.write((char *)(&excluir), sizeof(remedios));
+
+                    i = qtdDados + 1;
+                }
             }
-        }
 
-        if (achou == true)
-        {
-            cout << endl;
-            cout << "   REGISTRO EXCLUIDO COM SUCESSO!" << endl;
-            delay(3);
-            cout << endl;
-            terminal_clear();
-            return 0;
+            // se arquivo foi excluido
+            if (achou == true)
+            {
+                cout << endl;
+                cout << "   REGISTRO EXCLUIDO COM SUCESSO!" << endl;
+                delay(3);
+                terminal_clear();
+                return 0;
+            }
+
+            // Se não encontrar arquivo
+            else
+            {
+                cout << endl;
+                cout << "   REGISTRO NAO ENCONTRADO!" << endl;
+                delay(3);
+                terminal_clear();
+                return 0;
+            }
         }
 
         else
         {
             cout << endl;
-            cout << "   REGISTRO NAO ENCONTRADO!" << endl;
+            cout << "   CODIGO INFORMADO E INVALIDO" << endl;
             delay(3);
-            cout << endl;
             terminal_clear();
+
             return 0;
         }
     }
 }
 
+// Função para ordenar os dados de acordo com o campo informado pelo usuário
 int Ordenar_Dados()
 {
     string n;
@@ -605,7 +765,6 @@ int Ordenar_Dados()
 
             cout << "   ARQUIVO ORDENADO COM SUCESSO!";
             delay(3);
-            cout << endl;
             terminal_clear();
             return 0;
         }
@@ -620,7 +779,6 @@ int Ordenar_Dados()
         {
             cout << "                             OPCAO INVALIDA!";
             delay(2);
-            cout << endl;
             terminal_clear();
             return 5;
         }
@@ -711,9 +869,274 @@ void shell_sort(remedios vet[], int size, string tipo)
 
 int Buscar_Registro()
 {
+    string tipoBUsca;
+
+    // Abre para leitura e posiciona no final do arquivo
+    fstream arquivo("BaseDados_binario.dat", ios::binary | ios::in | ios::ate);
+
+    if (arquivo.fail())
+    {
+        cout << endl;
+        cout << "   ARQUIVO BINARIO NAO ENCONTRADO!" << endl;
+        cout << "   REALIZAR IMPORTACAO DA BASE DE DADOS!";
+        delay(5);
+        cout << endl;
+        terminal_clear();
+
+        return 0;
+    }
+
+    // Se arquivo foi aberto com sucesso
+    else
+    {
+        // Interface para verificar tipo de busca
+        while (tipoBUsca != "1" and tipoBUsca != "2" and tipoBUsca != "3")
+        {
+
+            // lista de opções de campos para busca
+            cout << endl;
+            cout << endl;
+            cout << endl;
+            cout << "   +---------------------------------------+" << endl;
+            cout << "   |                BUSCA                  |" << endl;
+            cout << "   +---------------------------------------+" << endl;
+            cout << "   | [1] Codigo De Barras                  |" << endl;
+            cout << "   |---------------------------------------|" << endl;
+            cout << "   | [2] Fornecedor                        |" << endl;
+            cout << "   |---------------------------------------|" << endl;
+            cout << "   | [3] Cancela Busca                     |" << endl;
+            cout << "   |---------------------------------------|" << endl;
+
+            cout << endl;
+            cout << "   ";
+            cin >> tipoBUsca;
+            terminal_clear();
+        }
+
+        // Busca por código de barras
+        if (tipoBUsca == "1")
+        {
+            string codigo_buscarS;
+            long long codigo_buscar;
+
+            cout << endl;
+            cout << endl;
+            cout << endl;
+            cout << "   Informe o codigo a ser buscado: ";
+            cin >> codigo_buscarS;
+
+            if (verificaLONGLONG(codigo_buscarS, codigo_buscar) == true)
+            {
+                terminal_clear();
+                bool achou = false;
+
+                // verifica tamanho do arquivo
+                long long tamanho_bytes = arquivo.tellg();
+                int num_regs = int(tamanho_bytes / sizeof(remedios));
+
+                remedios codigo_compara;
+
+                // Percorre o arquivo procurando valor informado
+                for (int i = 0; i < num_regs; i++)
+                {
+                    arquivo.seekg(i * sizeof(remedios));
+                    arquivo.read((char *)&codigo_compara, sizeof(remedios));
+
+                    // Se encontrar imprime na tela
+                    if (codigo_buscar == codigo_compara.codigo)
+                    {
+                        achou = true;
+
+                        cout << endl;
+                        cout << "   ";
+                        cout << codigo_compara.custo << " ";
+                        cout << codigo_compara.venda << " ";
+                        cout << codigo_compara.fornecedor << " ";
+                        cout << codigo_compara.codigo << " ";
+                        cout << codigo_compara.tarja << endl;
+                    }
+                }
+
+                // Se não encontrar nenhum dado informa o usuário
+                if (achou == false)
+                {
+                    cout << "   CODIGO NAO ENCONTRADO";
+                }
+
+                // Se encontrar verificar se deseja realziar nova bucas
+                else
+                {
+                    string novabuscaS;
+                    int novabusca;
+
+                    cout << endl;
+                    cout << endl;
+                    cout << "   Deseja buscar mais algum produto?" << endl;
+                    cout << "   [0] NAO  [1] SIM" << endl;
+                    cout << "   ";
+                    cin >> novabuscaS;
+
+                    // confirma se valor informado é válido
+                    if (verificaINT(novabuscaS, novabusca) == true)
+                    {
+                        terminal_clear();
+                        if (novabusca == 1)
+                        {
+                            return 6;
+                        }
+
+                        else if (novabusca == 0)
+                        {
+                            return 0;
+                        }
+
+                        else
+                        {
+                            cout << endl;
+                            cout << "   OPCAO INVALIDA" << endl;
+                            delay(3);
+                            terminal_clear();
+                            return 0;
+                        }
+                    }
+
+                    else
+                    {
+                        cout << endl;
+                        cout << "   OPCAO INVALIDA" << endl;
+                        delay(3);
+                        terminal_clear();
+
+                        return 0;
+                    }
+                }
+            }
+
+            else
+            {
+                cout << endl;
+                cout << "   CODIGO INFORMADO E INVALIDO" << endl;
+                delay(3);
+                terminal_clear();
+                return 6;
+            }
+        }
+
+        // Busca por fornecedor
+        else if (tipoBUsca == "2")
+        {
+            string fornecedorBuscar;
+            cout << endl;
+            cout << endl;
+            cout << endl;
+            cout << "   Informe o fonecerdor a ser buscado: ";
+            cin.ignore();
+            getline(cin, fornecedorBuscar);
+
+            bool achou = false;
+
+            // verifica o tamanho do arquivo
+            long long tamanho_bytes = arquivo.tellg();
+            int num_regs = int(tamanho_bytes / sizeof(remedios));
+
+            remedios fornecedor_compara;
+
+            // Percorre o arquivo procurando o valor informado
+            for (int i = 0; i < num_regs; i++)
+            {
+                arquivo.seekg(i * sizeof(remedios));
+                arquivo.read((char *)&fornecedor_compara, sizeof(remedios));
+
+                /* arquivo.read nos entrega no campo fornecedor
+                um vetor de caracteres, dessa forma para realizar
+                a comparação realizamos a conversão para string compara*/
+                string compara;
+                for (int i = 0; i < strlen(fornecedor_compara.fornecedor); i++)
+                {
+                    compara += fornecedor_compara.fornecedor[i];
+                }
+
+                // se encontrar o valor buscado imprimi na tela
+                if (fornecedorBuscar == compara)
+                {
+                    achou = true;
+                    cout << endl;
+                    cout << "    ";
+                    cout << fornecedor_compara.custo << " ";
+                    cout << fornecedor_compara.venda << " ";
+                    cout << fornecedor_compara.fornecedor << " ";
+                    cout << fornecedor_compara.codigo << " ";
+                    cout << fornecedor_compara.tarja << endl;
+                }
+            }
+
+            if (achou == false)
+            {
+                cout << endl;
+                cout << "   FORNECEDOR NAO ENCONTRADO";
+                delay(3);
+                terminal_clear();
+                return 6;
+            }
+
+            // Se encontrar verificar se deseja realziar nova bucas
+            else
+            {
+                string novabuscaS;
+                int novabusca;
+
+                cout << endl;
+                cout << endl;
+                cout << "   Deseja busca mais algum produto?" << endl;
+                cout << "   [0] NAO  [1] SIM" << endl;
+                cout << "   ";
+                cin >> novabuscaS;
+
+                // confirma se valor informado é válido
+                if (verificaINT(novabuscaS, novabusca) == true)
+                {
+                    terminal_clear();
+                    if (novabusca == 1)
+                    {
+                        return 6;
+                    }
+
+                    else if (novabusca == 0)
+                    {
+                        return 0;
+                    }
+
+                    else
+                    {
+                        cout << endl;
+                        cout << "   OPCAO INVALIDA" << endl;
+                        delay(3);
+                        terminal_clear();
+                        return 0;
+                    }
+                }
+
+                else
+                {
+                    cout << endl;
+                    cout << "   OPCAO INVALIDA" << endl;
+                    delay(3);
+                    terminal_clear();
+
+                    return 0;
+                }
+            }
+        }
+
+        else if (tipoBUsca == "3")
+        {
+            terminal_clear();
+            return 0;
+        }
+    }
 }
 
-int Imprimir_Arq_Inteiro()
+int Imprimir_Arq()
 {
     // Abre aequivo para leitura
     ifstream arqExport("BaseDados_binario.dat", ios::binary | ios::ate);
@@ -768,8 +1191,4 @@ int Imprimir_Arq_Inteiro()
         terminal_clear();
         return 0;
     }
-}
-
-int Imprimir_Trecho_Arq()
-{
 }
