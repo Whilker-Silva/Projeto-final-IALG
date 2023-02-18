@@ -1,21 +1,24 @@
 /*
-Alunos:
-    Pedro Henrique Pigozzi;
-    Victor Hugo Daia Lorenzato
-    Whilker Henrique Dos Santos Silva
-
+    Alunos:
+    Pedro Henrique Pigozzi - 202022
+    Victor Hugo Daia Lorenzato - 202022
+    Whilker Henrique Dos Santos Silva - 202020597
     Turma 22A
 
-    Professora: Marluce
+    Grupo:
+    Base de dados utilizada: Base 3
+
+    Professora: Marluce Rodrigues Pereira
 */
 
+// Inclusão das bibliotecas
 #include <iostream>
 #include <fstream>
 #include <string.h>
 #include <cstring>
 
-/*Biblioteca para uso do sleep no windows ou linux*/
-#if defined _WIN32
+// Biblioteca para uso do sleep no windows ou linux
+#if defined _WIN32 || defined _WIN64
 #include <Windows.h>
 #else
 #include <unistd.h>
@@ -96,13 +99,12 @@ int main()
     }
 
     return 0;
-
 } // Fim da main
 
 /*Função para limpar o terminal no windows e linux*/
 void terminal_clear()
 {
-#if defined _WIN32
+#if defined _WIN32 || defined _WIN64
     system("cls");
 #else
     system("clear");
@@ -112,7 +114,7 @@ void terminal_clear()
 /*Função para daley no windows ou linux*/
 void delay(int tempo)
 {
-#if defined _WIN32
+#if defined _WIN32 || defined _WIN64
     Sleep(tempo * 1000);
 #else
     sleep(tempo);
@@ -125,7 +127,7 @@ int menu(int escolha)
 {
     if (escolha == 0)
     {
-
+        // Interface para interação com usuário
         cout << endl;
         cout << endl;
         cout << endl;
@@ -152,14 +154,14 @@ int menu(int escolha)
         cout << endl;
         cout << "   Selecione uma opcao: ";
 
-        // usuario informa opção desejada
+        // Usuário informa opção desejada
         string n;
         cin >> n;
 
         /*
         Verificando se valor informado é valido
-        se for invalido, mostrar mensagem de erro e retornar 0
-        se for valido, retornar valor convertido para inteiro
+        Se for inválido, mostrar mensagem de erro e retornar 0
+        Se for valido, retornar valor convertido para inteiro
         */
         if (n != "0" and n != "1" and n != "2" and n != "3" and n != "4" and
             n != "5" and n != "6" and n != "7" and n != "8")
@@ -180,6 +182,10 @@ int menu(int escolha)
     }
 }
 
+/*
+Função para realizar imporatação dos dados
+em arquivo CSV para arquivo binário
+*/
 int Importar_dados_CSV()
 {
     string nome_arquvo;
@@ -195,7 +201,7 @@ int Importar_dados_CSV()
 
     ifstream arqin(nome_arquvo);
 
-    // verifica se o nome informado é valido
+    // verifica se o arquivo informado é valido
     if (arqin.fail())
     {
         cout << endl;
