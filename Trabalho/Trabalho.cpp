@@ -775,12 +775,14 @@ int Ordenar_Dados()
             int j = 0;
             for (int i = 0; i < cont; i++)
             {
+                // se tiver ativo copia dados
                 if (vetorOrdena[j].status == true)
                 {
                     vetorAux[i] = vetorOrdena[j];
                     j++;
                 }
 
+                // se tiver excluido, procura proximo valido e copia os dados
                 else
                 {
                     while (vetorOrdena[j].status == false)
@@ -793,7 +795,7 @@ int Ordenar_Dados()
                 }
             }
 
-            // escreve vetor ordenado no aquivo binario
+            // reescreve vetor ordenado no aquivo binario
             ofstream arqOrdenado("BaseDados_binario.dat", ios::binary);
             arqOrdenado.write((char *)&vetorAux, cont * sizeof(remedios));
             arqOrdenado.close();
@@ -1243,7 +1245,6 @@ int Imprimir_Arq()
                     cout << vetorExport[i].fornecedor << ";";
                     cout << vetorExport[i].codigo << ";";
                     cout << vetorExport[i].tarja << endl;
-                    
                 }
             }
         }
