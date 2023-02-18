@@ -997,6 +997,7 @@ int Buscar_Registro()
                 {
                     cout << "   CODIGO NAO ENCONTRADO";
                     delay(3);
+                    terminal_clear();
                     return 6;
                 }
 
@@ -1272,7 +1273,7 @@ int Imprimir_Arq()
 
                 for (int i = inicio; i <= fim; i++)
                 {
-                    if (vetorExport[i].status == true)
+                    if (vetorExport[i-1].status == true)
                     {
                         // excreve no arquino CSV
                         cout << endl;
